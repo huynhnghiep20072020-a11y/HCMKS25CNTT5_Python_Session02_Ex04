@@ -1,66 +1,56 @@
-"""
-
-1 PHÂN TÍCH VÀ ĐỀ XUẤT GIẢI PHÁP
-
-
-1. Phân tích Input / Output:
-- Input (Đầu vào): Mọi dữ liệu thu thập từ hàm input() đều mặc định 
-  được hệ thống ghi nhận là chuỗi ký tự (str).
-- Output (Đầu ra mong muốn): 
-  + Mã bệnh nhân: Giữ nguyên kiểu chuỗi (str)
-  + Nhiệt độ cơ thể: Bắt buộc ép sang kiểu số thực (float)
-  + Nhịp tim: Bắt buộc ép sang kiểu số nguyên (int)
-
-2. Đề xuất 2 giải pháp Ép kiểu (Type Casting):
-- Giải pháp 1 (Inline Type Casting - Ép kiểu trực tiếp): 
-  Gộp chung hàm ép kiểu và hàm nhập liệu trên cùng 1 dòng code.
-  VD: nhiet_do = float(input("Nhập nhiệt độ: "))
-- Giải pháp 2 (Two-step Type Casting - Ép kiểu 2 bước): 
-  Lưu dữ liệu vào một biến chuỗi tạm thời (raw data), sau đó 
-  tiến hành ép kiểu ở một dòng lệnh riêng biệt bên dưới.
-  VD: raw_nhiet_do = input("Nhập nhiệt độ: ")
-      nhiet_do = float(raw_nhiet_do)
-
-3. Bảng so sánh 2 giải pháp:
- Tiêu chí               Giải pháp 1 (Trực tiếp)      Giải pháp 2 (Hai bước)       
-----------------------------------------------------------------------------------
- Số lượng biến (Bộ nhớ) Ít (Tiết kiệm biến)          Nhiều hơn (Cần biến tạm)     
- Độ ngắn gọn của code   Rất ngắn (1 dòng)            Dài hơn (2 dòng)             
- Khả năng dễ debug      Rất thấp (Khó bắt lỗi)       Rất cao (Dễ dàng tra vết)    
-
-4. Chốt lựa chọn:
-- Chọn Giải pháp 2 (Ép kiểu hai bước).
-- Lý do: Trong môi trường Khoa Cấp cứu, tính ổn định của phần mềm là 
-  ưu tiên số một. Việc tách rời khâu "Thu thập" và khâu "Xử lý" giúp 
-  kỹ sư dễ dàng chèn thêm các khối bắt lỗi (Try-Catch) sau này. Nếu 
-  điều dưỡng lỡ tay nhập "37,5" thay vì "37.5", chương trình sẽ không 
-  bị sụp đổ (crash) ngay lập tức mà vẫn giữ lại được lịch sử nhập sai 
-  để cảnh báo.
-"""
+# 1. Phân tích Input / Output
+# Input: 3 biến dạng số nguyên (int) nhập từ bàn phím: age (Tuổi), sbp (Huyết áp tâm thu), sugar (Đường huyết).
+# Output: Thông báo lỗi nếu dữ liệu âm; ngược lại in kết quả sàng lọc y khoa ("ĐỦ ĐIỀU KIỆN" hoặc "TỪ CHỐI" kèm lý do cụ thể).
+# 2. Phân tích và so sánh hai giải pháp:
+# - Giải pháp 1: Gộp điều kiện (Flat Logic)
+#   + Độ ngắn gọn của code: Rất ngắn gọn, chỉ dùng một dòng kiểm tra duy nhất dạng if ... and ... and ...
+#   + Độ phức tạp khi đọc code (thụt lề): Thấp, mã nguồn phẳng, cấu trúc đơn giản, dễ nhìn tổng thể.
+#   + Trải nghiệm người dùng và Giá trị y khoa: Kém. Hệ thống chỉ có thể thông báo "Từ chối phẫu thuật" chung chung, điều dưỡng và bác sĩ không thể biết bệnh nhân bị trượt ở chỉ số cụ thể nào để kịp thời xử lý.
+# - Giải pháp 2: Điều kiện lồng nhau (Nested If)
+#   + Độ ngắn gọn của code: Dài dòng hơn do phải bóc tách và viết nhiều cấp rẽ nhánh if-else độc lập.
+#   + Độ phức tạp khi đọc code (thụt lề): Cao, mã nguồn bị thụt lề nhiều bậc, cấu trúc phức tạp hơn (Arrow Anti-pattern).
+#   + Trải nghiệm người dùng và Giá trị y khoa: Xuất sắc. Hệ thống bắt lỗi chính xác từng chỉ số sinh hiệu và thông báo rõ ràng lý do từ chối cụ thể (ví dụ: do đường huyết cao vượt ngưỡng), giúp y bác sĩ nắm bắt ngay tình trạng của bệnh nhân.
+# * Chốt lựa chọn: Chọn Giải pháp 2 (Điều kiện lồng nhau - Nested If).
+# * Lý do và Trade-off: Chấp nhận đánh đổi việc mã nguồn dài hơn và thụt lề nhiều tầng hơn để đạt được giá trị y khoa tối cao. Trong môi trường y tế bệnh viện, việc biết rõ chính xác nguyên nhân khiến bệnh nhân không đủ điều kiện mổ quan trọng hơn việc giữ cho mã nguồn ngắn gọn, giúp đảm bảo an toàn tính mạng và hỗ trợ bác sĩ đưa ra phác đồ điều hòa chỉ số kịp thời.
 
 
-# (2) TRIỂN KHAI CODE (PYTHON) - Dùng Giải pháp 2
+# viết code
+import sys
 
+# 1. Nhập dữ liệu đầu vào
+raw_age = input("Nhập tuổi bệnh nhân: ")
+raw_sbp = input("Nhập huyết áp tâm thu (mmHg): ")
+raw_sugar = input("Nhập đường huyết (mg/dL): ")
 
-# 1. Giao diện tiếp nhận
-print("--- HỆ THỐNG TIẾP NHẬN SINH HIỆU ---")
-ma_bn = input("Nhập mã bệnh nhân: ")
-raw_nhiet_do = input("Nhập nhiệt độ cơ thể (vd: 37.5): ")
-raw_nhip_tim = input("Nhập nhịp tim (vd: 85): ")
+# Kiểm tra định dạng số nguyên
+if not (raw_age.isdigit() or (raw_age.startswith('-') and raw_age[1:].isdigit())) or \
+   not (raw_sbp.isdigit() or (raw_sbp.startswith('-') and raw_sbp[1:].isdigit())) or \
+   not (raw_sugar.isdigit() or (raw_sugar.startswith('-') and raw_sugar[1:].isdigit())):
+    print("Dữ liệu nhập vào không hợp lệ")
+    sys.exit()
 
-# 2. Xử lý chuẩn hóa (Type Casting)
-nhiet_do = float(raw_nhiet_do)
-nhip_tim = int(raw_nhip_tim)
+age = int(raw_age)
+sbp = int(raw_sbp)
+sugar = int(raw_sugar)
 
-# 3. Hiển thị xác nhận
-print("\n--- KẾT QUẢ CHUẨN HÓA DỮ LIỆU ---")
-print(f"Mã bệnh nhân: {ma_bn}")
+# 2. Xử lý bẫy dữ liệu âm (Edge Case)
+if age < 0 or sbp < 0 or sugar < 0:
+    print("Dữ liệu nhập vào không hợp lệ")
+    sys.exit()
 
-print(f"Nhiệt độ cơ thể: {nhiet_do} độ C")
-print(f"=> Kiểu dữ liệu hệ thống ghi nhận: {type(nhiet_do)}")
+# 3. Xét duyệt y khoa theo giải pháp Điều kiện lồng nhau (Nested If)
+print("\n--- KẾT QUẢ SÀNG LỌC TIỀN PHẪU THUẬT ---")
 
-print(f"Nhịp tim: {nhip_tim} nhịp/phút")
-print(f"=> Kiểu dữ liệu hệ thống ghi nhận: {type(nhip_tim)}")
-
-print("-" * 50)
-print("Thông báo: Dữ liệu hợp lệ. Màn hình Monitor đã sẵn sàng kết nối!")
+if age < 75:
+    if 90 <= sbp <= 140:
+        if sugar < 150:
+            print("KẾT LUẬN: ĐỦ ĐIỀU KIỆN PHẪU THUẬT")
+        else:
+            print("KẾT LUẬN: TỪ CHỐI PHẪU THUẬT")
+            print("Lý do: Đường huyết cao vượt ngưỡng an toàn (Hiện tại: {} mg/dL, yêu cầu: < 150).".format(sugar))
+    else:
+        print("KẾT LUẬN: TỪ CHỐI PHẪU THUẬT")
+        print("Lý do: Huyết áp tâm thu nằm ngoài khoảng an toàn (Hiện tại: {} mmHg, yêu cầu: 90 - 140).".format(sbp))
+else:
+    print("KẾT LUẬN: TỪ CHỐI PHẪU THUẬT")
+    print("Lý do: Bệnh nhân vượt quá độ tuổi phẫu thuật an toàn (Hiện tại: {} tuổi, yêu cầu: < 75).".format(age))
